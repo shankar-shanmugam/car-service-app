@@ -23,7 +23,7 @@ public class ApplicationHandler {
 		
 	}
 	
-	@ExceptionHandler
+	@ExceptionHandler()
 	public ResponseEntity<ErrorStructure<String>> serviceNotFoundByIdException(ServiceNotFoundByIdException ex){
 		
 		ErrorStructure<String>er= new ErrorStructure<>();
@@ -31,6 +31,8 @@ public class ApplicationHandler {
 		er.setErrordata("service with the requested id is not prsent in the database");
 		er.setErrormessage(ex.getMessage());
 		return new ResponseEntity<ErrorStructure<String>>(er,HttpStatus.NOT_FOUND);
+		
+		
 		
 	}
 	
