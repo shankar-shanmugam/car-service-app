@@ -1,9 +1,6 @@
 package com.practice.serviceImpl;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -30,81 +27,67 @@ public class CarServiceServiceImpl implements CarServiceService {
 
 	@Override
 	public ResponseEntity<ResponseStructure<ServiceResponse>> addService(ServiceRequest serviceRequest) {
+
 		CarService carService = serviceMapper.mapToCarService(serviceRequest);
-		CarService savedService = serviceRepository.save(carService);
-		ServiceResponse serviceResponse = serviceMapper.mapToServiceResponse(savedService);
+		ServiceResponse serviceResponse = serviceMapper.mapToServiceResponse(serviceRepository.save(carService));
 
-		ResponseStructure<ServiceResponse> rs = new ResponseStructure<>();
-		rs.setStatusCode(HttpStatus.CREATED.value());
-		rs.setMessage("Car service added successfully");
-		rs.setData(serviceResponse);
-
-		return new ResponseEntity<ResponseStructure<ServiceResponse>>(rs, HttpStatus.CREATED);
+	return	ResponseEntity.status(HttpStatus.CREATED).body(new ResponseStructure<ServiceResponse>()
+				.setStatusCode(HttpStatus.CREATED.value()).setData(serviceResponse).setMessage(" car service added successfully"));	
 	}
 
 	@Override
 	public ResponseEntity<ResponseStructure<ServiceResponse>> findServiceById(int carServiceId) {
-		Optional<CarService> carService = serviceRepository.findById(carServiceId);
-		if (carService.isPresent()) {
-			ServiceResponse serviceResponse = serviceMapper.mapToServiceResponse(carService.get());
-			ResponseStructure<ServiceResponse> rs = new ResponseStructure<>();
-			rs.setStatusCode(HttpStatus.OK.value());
-			rs.setMessage("Car service found");
-			rs.setData(serviceResponse);
-			return new ResponseEntity<ResponseStructure<ServiceResponse>>(rs, HttpStatus.OK);
-		} else {
-			throw new ServiceNotFoundByIdException("Service ID not found");
-		}
+
+		return serviceRepository.findById(carServiceId).map(carService -> ResponseEntity.status(HttpStatus.FOUND)
+				.body(new ResponseStructure<ServiceResponse>().setStatusCode(HttpStatus.FOUND.value())
+						.setMessage("car service found").setData(serviceMapper.mapToServiceResponse(carService))))
+				.orElseThrow(() -> new ServiceNotFoundByIdException("Service ID not found"));
 	}
 
 	@Override
 	public ResponseEntity<ResponseStructure<ServiceResponse>> updateServiceById(int carServiceId,
 			ServiceRequest updatedServiceRequest) {
-		Optional<CarService> existingServiceOptional = serviceRepository.findById(carServiceId);
-		if (existingServiceOptional.isPresent()) {
-			CarService existingService = existingServiceOptional.get();
+	
+		return serviceRepository.findById(carServiceId).map(exCarService -> {
+			
 			CarService carService = serviceMapper.mapToCarService(updatedServiceRequest);
-			carService.setId(existingService.getId());
-			CarService updatedService = serviceRepository.save(carService);
+			carService.setId(exCarService.getId());
+			ServiceResponse serviceResponse = serviceMapper.mapToServiceResponse(serviceRepository.save(carService));
+			
+			return ResponseEntity.status(HttpStatus.OK)
+					.body(new ResponseStructure<ServiceResponse>()
+							.setStatusCode(HttpStatus.OK.value())
+							.setMessage("car service updated successfully")
+							.setData(serviceResponse));
+		}).orElseThrow(() -> new ServiceNotFoundByIdException("Service ID not found"));
 
-			ServiceResponse serviceResponse = serviceMapper.mapToServiceResponse(updatedService);
-			ResponseStructure<ServiceResponse> rs = new ResponseStructure<>();
-			rs.setStatusCode(HttpStatus.OK.value());
-			rs.setMessage("Car service updated successfully");
-			rs.setData(serviceResponse);
-			return new ResponseEntity<ResponseStructure<ServiceResponse>>(rs, HttpStatus.OK);
-		} else {
-			throw new ServiceNotFoundByIdException("Service ID not found");
-		}
 	}
 
 	@Override
 	public ResponseEntity<ResponseStructure<ServiceResponse>> deleteService(int carServiceId) {
-		Optional<CarService> existingServiceOptional = serviceRepository.findById(carServiceId);
-		if (existingServiceOptional.isPresent()) {
-			CarService carService = existingServiceOptional.get();
-			serviceRepository.delete(carService);
-			ServiceResponse serviceResponse = serviceMapper.mapToServiceResponse(carService);
-			ResponseStructure<ServiceResponse> rs = new ResponseStructure<>();
-			rs.setStatusCode(HttpStatus.OK.value());
-			rs.setMessage("Car service deleted successfully");
-			rs.setData(serviceResponse);
-			return new ResponseEntity<ResponseStructure<ServiceResponse>>(rs, HttpStatus.OK);
-		} else {
-			throw new ServiceNotFoundByIdException("Service ID not found");
-		}
+				
+	return	serviceRepository.findById(carServiceId).map(carService->{
+		
+		serviceRepository.delete(carService);	
+		return	ResponseEntity.status(HttpStatus.OK).body(new ResponseStructure<ServiceResponse>()
+					.setStatusCode(HttpStatus.OK.value())
+					.setMessage("car service deleted successfully").setData(serviceMapper.mapToServiceResponse(carService)));
+				
+		}).orElseThrow(()->new ServiceNotFoundByIdException("service ID not found"));
+		
 	}
 
 	@Override
 	public ResponseEntity<ResponseStructure<List<ServiceResponse>>> findAllServices() {
-		List<CarService> services = serviceRepository.findAll();
-		List<ServiceResponse> serviceResponses = services.stream().map(serviceMapper::mapToServiceResponse)
-				.collect(Collectors.toList());
-
-		ResponseStructure<List<ServiceResponse>> rs = new ResponseStructure<>();
-		rs.setStatusCode(HttpStatus.OK.value());
-		rs.setMessage("All car services fetched successfully");
-		rs.setData(serviceResponses);
-		return new ResponseEntity<ResponseStructure<List<ServiceResponse>>>(rs, HttpStatus.OK);
+		
+		List<ServiceResponse> serviceResponses = serviceRepository.findAll()
+				.stream()
+				.map(serviceMapper::mapToServiceResponse) // (service->serviceMapper.mapToServiceResponse(service))
+				.toList();
+		return ResponseEntity.status(HttpStatus.FOUND)
+				.body(new ResponseStructure<List<ServiceResponse>>()
+				.setStatusCode(HttpStatus.FOUND.value())
+				.setMessage("All car service fetched successfully")
+				.setData(serviceResponses));
 	}
 }

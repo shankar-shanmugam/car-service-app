@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class CarController {
 
 	
-	private CarServiceInterface carServiceInterface;
+	private final CarServiceInterface carServiceInterface;
 	
 	public CarController(CarServiceInterface carServiceInterface) {
 		this.carServiceInterface = carServiceInterface;
