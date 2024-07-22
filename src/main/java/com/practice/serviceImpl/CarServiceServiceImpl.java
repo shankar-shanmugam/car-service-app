@@ -24,15 +24,14 @@ public class CarServiceServiceImpl implements CarServiceService {
 		this.serviceMapper = serviceMapper;
 		this.serviceRepository = serviceRepository;
 	}
-
+														
 	@Override
 	public ResponseEntity<ResponseStructure<ServiceResponse>> addService(ServiceRequest serviceRequest) {
 
-		CarService carService = serviceMapper.mapToCarService(serviceRequest);
-		ServiceResponse serviceResponse = serviceMapper.mapToServiceResponse(serviceRepository.save(carService));
-
 	return	ResponseEntity.status(HttpStatus.CREATED).body(new ResponseStructure<ServiceResponse>()
-				.setStatusCode(HttpStatus.CREATED.value()).setData(serviceResponse).setMessage(" car service added successfully"));	
+				.setStatusCode(HttpStatus.CREATED.value())
+				.setData( serviceMapper.mapToServiceResponse(serviceRepository.save(serviceMapper.mapToCarService(serviceRequest))))
+				.setMessage(" car service added successfully"));	
 	}
 
 	@Override
@@ -52,13 +51,13 @@ public class CarServiceServiceImpl implements CarServiceService {
 			
 			CarService carService = serviceMapper.mapToCarService(updatedServiceRequest);
 			carService.setId(exCarService.getId());
-			ServiceResponse serviceResponse = serviceMapper.mapToServiceResponse(serviceRepository.save(carService));
 			
 			return ResponseEntity.status(HttpStatus.OK)
 					.body(new ResponseStructure<ServiceResponse>()
 							.setStatusCode(HttpStatus.OK.value())
 							.setMessage("car service updated successfully")
-							.setData(serviceResponse));
+							.setData(serviceMapper.mapToServiceResponse(serviceRepository.save(carService))));
+			
 		}).orElseThrow(() -> new ServiceNotFoundByIdException("Service ID not found"));
 
 	}
@@ -80,14 +79,14 @@ public class CarServiceServiceImpl implements CarServiceService {
 	@Override
 	public ResponseEntity<ResponseStructure<List<ServiceResponse>>> findAllServices() {
 		
-		List<ServiceResponse> serviceResponses = serviceRepository.findAll()
-				.stream()
-				.map(serviceMapper::mapToServiceResponse) // (service->serviceMapper.mapToServiceResponse(service))
-				.toList();
+		
 		return ResponseEntity.status(HttpStatus.FOUND)
 				.body(new ResponseStructure<List<ServiceResponse>>()
 				.setStatusCode(HttpStatus.FOUND.value())
 				.setMessage("All car service fetched successfully")
-				.setData(serviceResponses));
+				.setData(serviceRepository.findAll()
+						.stream()
+						.map(serviceMapper::mapToServiceResponse) // (service->serviceMapper.mapToServiceResponse(service))
+						.toList()));
 	}
 }

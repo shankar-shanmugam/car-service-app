@@ -35,11 +35,11 @@ public class CarServiceImpl implements CarServiceInterface {
 	@Override
 	public ResponseEntity<ResponseStructure<CarResponse>> addCar(CarRequest carRequest) {
 
-		Car car = repo.save(carMapper.mapToCar(carRequest));
-		CarResponse CarResponse = carMapper.mapToCarResponse(car);
-		
+	
 		return	ResponseEntity.status(HttpStatus.CREATED).body(new ResponseStructure<CarResponse>()
-				.setStatusCode(HttpStatus.CREATED.value()).setData(CarResponse).setMessage(" car object added successfully "));
+				.setStatusCode(HttpStatus.CREATED.value())
+				.setData(carMapper.mapToCarResponse(repo.save(carMapper.mapToCar(carRequest))))
+				.setMessage(" car object added successfully "));
 	}
 
 	@Override
@@ -49,14 +49,14 @@ public class CarServiceImpl implements CarServiceInterface {
 			
 			Car car = carMapper.mapToCar(updatedCar);
 			car.setId(exCar.getId());
-			CarResponse carResponse = carMapper.mapToCarResponse(repo.save(car));
+			 
 			
 		return	 ResponseEntity.status(HttpStatus.OK)
 
 			 .body(new ResponseStructure<CarResponse>()
 						.setStatusCode(HttpStatus.OK.value())
 						.setMessage("car updated successfully")
-						.setData(carResponse));
+						.setData(carMapper.mapToCarResponse(repo.save(car))));
 	}).orElseThrow(() -> new CarNotFoundByIdException("Car ID not found"));
 			}
 
@@ -80,14 +80,13 @@ public class CarServiceImpl implements CarServiceInterface {
 	@Override
 	public ResponseEntity<ResponseStructure<List<CarResponse>>> findAllCars() {
 
-		List<CarResponse> carResponseDTOList = repo.findAll().stream()
-				.map(carMapper::mapToCarResponse)
-				.toList();
 		return ResponseEntity.status(HttpStatus.FOUND)
 				.body(new ResponseStructure<List<CarResponse>>()
 				.setStatusCode(HttpStatus.OK.value())
 				.setMessage("List of cars fetched successfully")
-				.setData(carResponseDTOList));
+				.setData(repo.findAll().stream()
+						.map(carMapper::mapToCarResponse)
+						.toList()));
 	}
 
 	@Override
