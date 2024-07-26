@@ -1,16 +1,16 @@
 package com.practice.security;
 
 import java.util.Collection;
+import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.practice.entity.User;
 
 public class UserDetailImpl implements UserDetails{
 
-	@Autowired
 	private User user;
 	
 	public UserDetailImpl(User user) {
@@ -19,8 +19,8 @@ public class UserDetailImpl implements UserDetails{
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		// TODO Auto-generated method stub
-		return null;
+
+		return List.of(new SimpleGrantedAuthority(user.getUserRole().name()));
 	}
 
 	@Override
@@ -32,5 +32,7 @@ public class UserDetailImpl implements UserDetails{
 	public String getUsername() {
 		return user.getEmail();
 	}
+
+	
 
 }

@@ -4,6 +4,7 @@ package com.practice.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import com.practice.dtorequest.ServiceRequest;
@@ -22,6 +23,7 @@ public class CarServiceController {
     }
 
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseStructure<ServiceResponse>> addService(@RequestBody ServiceRequest serviceRequest) {
         return carServiceService.addService(serviceRequest);
     }
@@ -37,6 +39,7 @@ public class CarServiceController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<ResponseStructure<ServiceResponse>> deleteService(@PathVariable int id) {
         return carServiceService.deleteService(id);
     }

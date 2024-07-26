@@ -1,5 +1,7 @@
 package com.practice.mapper;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import com.practice.dtorequest.UserRequest;
@@ -9,14 +11,16 @@ import com.practice.entity.User;
 @Component
 public class UserMapper {
 
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 	
 	public User mapToUser(UserRequest userRequest) {
 		
-		
+	
 		User user= new User();
 		user.setName(userRequest.getName());
 		user.setEmail(userRequest.getEmail());
-		user.setPassword(userRequest.getPassword());
+		user.setPassword(passwordEncoder.encode(userRequest.getPassword()));
 		user.setUserRole(userRequest.getUserRole());
 		
 		return user;
