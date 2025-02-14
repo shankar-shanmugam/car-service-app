@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.practice.dtorequest.AuthRequest;
 import com.practice.dtorequest.UserRequest;
 import com.practice.dtoresponse.UserResponse;
 import com.practice.serviceImpl.UserServiceImpl;
@@ -20,13 +20,20 @@ import com.practice.utility.ResponseStructure;
 
 @RestController
 public class UserController {
-
+	
 	private final UserServiceImpl userServiceImpl;
-
+	
 	public UserController(UserServiceImpl userServiceImpl) {
 		this.userServiceImpl = userServiceImpl;
+		
 	}
 
+	@PostMapping("/user-login")
+	public ResponseEntity<ResponseStructure<String>> login(@RequestBody AuthRequest authRequest) {
+		
+		return userServiceImpl.login(authRequest);
+	}
+	
 	@PostMapping("/register")
 	public ResponseEntity<ResponseStructure<UserResponse>> registerUser( @RequestBody UserRequest userRequest){
 		 System.out.println("UserRole in Request: " + userRequest.getUserRole());

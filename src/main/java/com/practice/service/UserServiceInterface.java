@@ -1,6 +1,8 @@
 package com.practice.service;
 
 import org.springframework.http.ResponseEntity;
+
+import com.practice.dtorequest.AuthRequest;
 import com.practice.dtorequest.UserRequest;
 import com.practice.dtoresponse.UserResponse;
 import com.practice.utility.ResponseStructure;
@@ -18,4 +20,6 @@ public interface UserServiceInterface {
     ResponseEntity<ResponseStructure<UserResponse>> getUserById(int id);
     
     ResponseEntity<ResponseStructure<List<UserResponse>>> getAllUsers();
+    
+    ResponseEntity<ResponseStructure<String>>login(AuthRequest authRequest);
 }

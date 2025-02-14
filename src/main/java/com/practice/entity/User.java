@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class User {
@@ -20,6 +21,17 @@ public class User {
 	private String password;
 	@Enumerated(EnumType.STRING)
 	private UserRole userRole;
+	
+	@OneToOne(mappedBy = "user")
+	private Cart cart;
+	
+	public Cart getCart() {
+		return cart;
+	}
+
+	public void setCart(Cart cart) {
+		this.cart = cart;
+	}
 
 	public UserRole getUserRole() {
 		return userRole;
